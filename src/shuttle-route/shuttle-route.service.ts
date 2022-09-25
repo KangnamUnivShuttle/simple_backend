@@ -40,4 +40,23 @@ export class ShuttleRouteService {
       this.logger.error(`[init] err`, err.message);
     }
   }
+
+  getRouteSchedule(routeName: string): string[] {
+    if (!this.scheduleHeaders.includes(routeName)) {
+      throw new Error(
+        `[getRouteSchedule] Undefined route name detected : ${routeName}`,
+      );
+    }
+
+    if (this.scheduleDB.length <= 0) {
+      throw new Error(`[getRouteSchedule] schedule not ready`);
+    }
+
+    const routeIdx = this.scheduleHeaders.indexOf(routeName);
+    return this.scheduleDB
+      .map((row) => row._rawData[routeIdx])
+      .filter((a) => a);
+    //   https://stackoverflow.com/a/2843625
+    // remove null from array
+  }
 }

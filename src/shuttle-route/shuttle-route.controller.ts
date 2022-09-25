@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Param } from '@nestjs/common';
 import { ShuttleRouteService } from './shuttle-route.service';
 
 @Controller('shuttleroute')
@@ -8,5 +8,10 @@ export class ShuttleRouteController {
   @Get('healthcheck')
   healthCheck(): string {
     return this.shuttleRouteService.sheetTitle;
+  }
+
+  @Get('schedule/:route')
+  getRouteSchedule(@Param('route') routeName: string) {
+    return this.shuttleRouteService.getRouteSchedule(routeName);
   }
 }
