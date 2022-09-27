@@ -1,8 +1,10 @@
 import { Controller, Get, Param } from '@nestjs/common';
+import { Logger } from '@nestjs/common';
 import { ShuttleRouteService } from './shuttle-route.service';
 
 @Controller('shuttleroute')
 export class ShuttleRouteController {
+  private readonly logger = new Logger(ShuttleRouteController.name);
   constructor(private readonly shuttleRouteService: ShuttleRouteService) {}
 
   @Get('healthcheck')
@@ -17,7 +19,18 @@ export class ShuttleRouteController {
 
   @Get('schedule/:route')
   getRouteSchedule(@Param('route') routeName: string) {
-    return this.shuttleRouteService.getRouteSchedule(routeName);
+    try {
+      return {
+        error: null,
+        data: this.shuttleRouteService.getRouteSchedule(routeName),
+      };
+    } catch (err) {
+      this.logger.error(`[getRouteSchedule] err: ${err.message}`);
+      return {
+        data: [] as string[],
+        error: err.message,
+      };
+    }
   }
 
   @Get('fastestbustime/:route')

@@ -43,13 +43,11 @@ export class ShuttleRouteService {
 
   getRouteSchedule(routeName: string): string[] {
     if (!this.scheduleHeaders.includes(routeName)) {
-      throw new Error(
-        `[getRouteSchedule] Undefined route name detected : ${routeName}`,
-      );
+      throw new Error(`Undefined route name detected`);
     }
 
     if (this.scheduleDB.length <= 0) {
-      throw new Error(`[getRouteSchedule] schedule not ready`);
+      throw new Error(`Schedule data is not ready`);
     }
 
     const routeIdx = this.scheduleHeaders.indexOf(routeName);
@@ -99,28 +97,41 @@ export class ShuttleRouteService {
     currentTimeSec: number,
   ): { thisTimeIdx: number; nextTimeIdx: number } {
     const schedule = this.getRouteSchedule(routeName).map((time) => {
-      return Number(time.split(':'))[0] * 60 + Number(time.split(':')[1]);
+      return Number(time.split(':')[0]) * 60 + Number(time.split(':')[1]);
     });
+    if (schedule.length <= 0) {
+      throw new Error(`Schedule is empty`);
+    }
 
     this.logger.debug(
       `[getFastestBusTime] current time: ${currentTimeSec} / route: ${routeName}`,
     );
 
-    let fastestIdx = 0;
+    let fastestIdx = -1;
     for (let i = 0; i < schedule.length; i++) {
+      this.logger.debug(
+        `[getFastestBusTime] sec: ${currentTimeSec} | schedule: ${
+          schedule[i]
+        } | schedule + 1 : ${
+          i + 1 < schedule.length ? schedule[i + 1] : '---'
+        }`,
+      );
       if (currentTimeSec <= schedule[i]) {
         fastestIdx = 0;
         break;
       } else if (
-        i + 1 < schedule.length &&
+        i + 2 <= schedule.length &&
         schedule[i] < currentTimeSec &&
         currentTimeSec <= schedule[i + 1]
       ) {
-        fastestIdx = i;
-      } else if (i + 1 === schedule.length && currentTimeSec <= schedule[i]) {
-        fastestIdx = i;
-      } else {
+        fastestIdx = i + 1;
+        break;
+      } else if (i + 2 === schedule.length && currentTimeSec <= schedule[i]) {
+        fastestIdx = i + 1;
+        break;
+      } else if (i + 2 > schedule.length) {
         fastestIdx = -1;
+        break;
       }
     }
     this.logger.debug(`[getFastestBusTime] fastest idx: ${fastestIdx}`);
