@@ -69,6 +69,40 @@ describe('AppController', () => {
       // );
     });
 
+    it('Should return error if current time is out of range', () => {
+      shuttleRouteService.getRouteSchedule = () => {
+        return ['8:00', '8:30', '9:30'];
+      };
+      try {
+        shuttleRouteService.getFastestBusTimeIdx('foo', -9999);
+      } catch (err) {
+        expect(err.message).toBe('Time sec is out of range');
+      }
+    });
+
+    it('Should return error if current time is out of range', () => {
+      shuttleRouteService.getRouteSchedule = () => {
+        return ['8:00', '8:30', '9:30'];
+      };
+      try {
+        shuttleRouteService.getFastestBusTimeIdx('foo', 9999);
+      } catch (err) {
+        expect(err.message).toBe('Time sec is out of range');
+      }
+    });
+    it('Should return error if schedule length <= 2', () => {
+      shuttleRouteService.getRouteSchedule = () => {
+        return ['8:00', '8:30'];
+      };
+      try {
+        shuttleRouteService.getFastestBusTimeIdx('foo', 480);
+      } catch (err) {
+        expect(err.message).toBe(
+          'Not enough schedule data. At least 3 schedule required',
+        );
+      }
+    });
+
     it('Should return first idx', () => {
       shuttleRouteService.getRouteSchedule = () => {
         return ['8:00', '8:30', '9:30'];

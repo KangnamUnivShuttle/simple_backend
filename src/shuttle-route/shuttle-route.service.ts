@@ -99,8 +99,15 @@ export class ShuttleRouteService {
     const schedule = this.getRouteSchedule(routeName).map((time) => {
       return Number(time.split(':')[0]) * 60 + Number(time.split(':')[1]);
     });
+
+    if (currentTimeSec < 0 || currentTimeSec > 24 * 60) {
+      throw new Error(`Time sec is out of range`);
+    }
     if (schedule.length <= 0) {
       throw new Error(`Schedule is empty`);
+    }
+    if (schedule.length < 3) {
+      throw new Error(`Not enough schedule data. At least 3 schedule required`);
     }
 
     this.logger.debug(
