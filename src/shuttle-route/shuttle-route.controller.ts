@@ -22,6 +22,10 @@ export class ShuttleRouteController {
 
   @Get('fastestbustime/:route')
   getFastestBusTimeFromRoute(@Param('route') routeName: string) {
-    return '';
+    const currentTimeSec = this.shuttleRouteService.getCurrentTimeSec();
+    return this.shuttleRouteService.fastestBustTimeIdxToString(
+      routeName,
+      this.shuttleRouteService.getFastestBusTimeIdx(routeName, currentTimeSec),
+    );
   }
 }
